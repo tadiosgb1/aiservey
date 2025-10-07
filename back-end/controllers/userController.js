@@ -3,13 +3,14 @@ const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const fs = require("fs");
+
 const {
   calculateAllocatedMonths,
   getDirectReferralsWithMonths,
   getDescendantsWithMonths,
 } = require("../utils/referralUtils");
 
-// Create a new user
+
 const generateReferralCode = () => {
   return "REF-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 };
@@ -32,40 +33,33 @@ exports.createUser = async (req, res) => {
       institute_name,
       department,
       field_of_study,
-    
       occupation,
       org_name,
       work_country,
       work_city,
       work_department,
       work_description,
-   
       english_level,
-   
-      youtube_url
     } = req.body;
 
     // Basic validation
-    if (!name || !email || !phone_number || !password || !gender || !country || !educational_level || !youtube_url) {
+    if (!name || !email || !phone_number || !password || !gender || !country || !educational_level) {
       return res.status(400).json({ message: "Missing required fields." });
+    }
+
+    // Ensure CV and YouTube screenshot are uploaded
+    if (!req.files || !req.files.cv_url || !req.files.youtube_screenshot) {
+      return res.status(400).json({ message: "CV and YouTube screenshot are required." });
     }
 
     // Hash password securely
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Handle file uploads (if using multer)
-    const uploadedFiles = {};
-    const imageFields = [
-      "cv_url", "tiktok_screenshot", "instagram_screenshot",
-      "facebook_screenshot", "x_screenshot", "bot_subscribe_screenshot",
-      "other_social_screenshot"
-    ];
-
-    imageFields.forEach((field) => {
-      if (req.files && req.files[field] && req.files[field][0]) {
-        uploadedFiles[field] = `/uploads/${req.files[field][0].filename}`;
-      }
-    });
+    // Uploaded files paths
+    const uploadedFiles = {
+      cv_url: `/uploads/${req.files.cv_url[0].filename}`,
+      youtube_screenshot_url: `/uploads/${req.files.youtube_screenshot[0].filename}`,
+    };
 
     // Generate referral code if not provided
     const referral_code = req.body.referral_code || generateReferralCode();
@@ -73,11 +67,11 @@ exports.createUser = async (req, res) => {
     // Create user
     const user = await User.create({
       name,
-      birth_date,
+      birth_date: birth_date || null,
       gender,
       country,
-      city,
-      address,
+      city: city || null,
+      address: address || null,
       email,
       phone_number,
       password: hashedPassword,
@@ -85,18 +79,17 @@ exports.createUser = async (req, res) => {
       referrer_id: referrer_id || null,
       status: status || "learning",
       educational_level,
-      institute_name,
-      department,
-      field_of_study,
-      occupation,
-      org_name,
-      work_country,
-      work_city,
-      work_department,
-      work_description,
-      english_level,
-      youtube_url,
-      ...uploadedFiles
+      institute_name: institute_name || null,
+      department: department || null,
+      field_of_study: field_of_study || null,
+      occupation: occupation || null,
+      org_name: org_name || null,
+      work_country: work_country || null,
+      work_city: work_city || null,
+      work_department: work_department || null,
+      work_description: work_description || null,
+      english_level: english_level || null,
+      ...uploadedFiles,
     });
 
     return res.status(201).json({
@@ -107,15 +100,17 @@ exports.createUser = async (req, res) => {
         email: user.email,
         phone_number: user.phone_number,
         referral_code: user.referral_code,
-        youtube_url: user.youtube_url
-      }
+        youtube_screenshot_url: user.youtube_screenshot_url,
+        cv_url: user.cv_url,
+      },
     });
 
   } catch (err) {
     console.error("Error creating user:", err);
     return res.status(500).json({ message: "Server error", error: err.message });
   }
-};;
+};
+
 
 // Get a user with referrals and allocated months
 exports.getUserWithReferralsAndMonths = async (req, res) => {
