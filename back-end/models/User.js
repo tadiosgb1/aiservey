@@ -5,7 +5,6 @@ class User extends Model {}
 
 User.init({
   name: { type: DataTypes.STRING(150), allowNull: false },
-  age: { type: DataTypes.INTEGER, validate: { min: 0 } },
   birth_date: { type: DataTypes.DATE, allowNull: true },
   gender: { type: DataTypes.ENUM('male','female','other'), allowNull: false },
   country: { type: DataTypes.STRING(100), allowNull: false },
@@ -28,7 +27,6 @@ User.init({
   institute_name: { type: DataTypes.STRING(255), allowNull: true },
   department: { type: DataTypes.STRING(150), allowNull: true },
   field_of_study: { type: DataTypes.STRING(150), allowNull: true },
-  graduation_year: { type: DataTypes.INTEGER, allowNull: true },
 
   occupation: { type: DataTypes.STRING(150), allowNull: true },
   org_name: { type: DataTypes.STRING(255), allowNull: true },
@@ -37,13 +35,10 @@ User.init({
   work_department: { type: DataTypes.STRING(150), allowNull: true },
   work_description: { type: DataTypes.TEXT, allowNull: true },
 
-  skills: { type: DataTypes.JSON, allowNull: true },
   english_level: { type: DataTypes.ENUM('native','professional','intermediate','beginner'), allowNull: true },
-  other_languages: { type: DataTypes.JSON, allowNull: true },
-
+ 
   cv_url: { type: DataTypes.STRING(255), allowNull: true },
-  youtube_url: { type: DataTypes.STRING(255), allowNull: false },
-  certificates: { type: DataTypes.JSON, allowNull: true },
+  youtube_screenshot_url: { type: DataTypes.STRING(255), allowNull: false },
 
   // Social media
   tiktok_screenshot: { type: DataTypes.STRING(255), allowNull: true },

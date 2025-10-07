@@ -12,27 +12,18 @@
           <a href="#contact" class="hover:underline">Contact</a>
         </nav>
         <button
-          @click="loginWithGoogle"
-          v-if="!user"
+          @click="showLogin = true"
           class="bg-white text-orange-600 font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100"
         >
-          Login with Gmail
+          Login
         </button>
-        <div v-else class="flex items-center space-x-3">
-          <span class="font-semibold">Hi, {{ user.name }}</span>
-          <button
-            @click="logout"
-            class="bg-red-500 px-3 py-1 rounded-lg text-white hover:bg-red-600"
-          >
-            Logout
-          </button>
-        </div>
+       
       </div>
     </header>
 
     <!-- Hero -->
     <section class="bg-gradient-to-r from-orange-600 to-indigo-600 text-white py-20 text-center">
-      <h2 class="text-4xl font-bold mb-4">7.2 Million Data Gatherers Needed</h2>
+      <h2 class="text-4xl font-bold mb-4">We are hiring over 7.2 Million scholars for data gathering </h2>
       <p class="max-w-2xl mx-auto">
         Sponsored by 3.4K+ companies. Help us build the world’s largest open-source AI for Africa & the world. Get paid while shaping the future.
       </p>
@@ -96,7 +87,7 @@
     <Aifuture />
 
     <!-- Requirements -->
-  <Requirements />
+     <Requirements />
       <Register 
       :visible="showRegister" 
       @close="showRegister = false"
@@ -105,7 +96,13 @@
 
     <!-- FAQ -->
   <Faqs />
-
+ <LoginModal
+      :visible.sync="showLogin"
+      @login="handleLogin"
+      @login-google="handleGoogleLogin"
+      @forgot-sent="handleForgotSent"
+      @open-register="() => alert('Open register modal here')"
+    />
     <!-- Dashboard -->
     <section v-if="user" class="py-16 bg-gray-50">
       <div class="max-w-5xl mx-auto bg-white shadow rounded-xl p-8">
@@ -165,13 +162,15 @@ import Register from './register.vue'
 import Faqs from './fqs.vue';
 import Requirements from './requirements.vue'
 import Aifuture from './AiFuture.vue'
+import LoginModal from "./login.vue"
 export default {
   name: "UbuntuMindApp",
   components:{
     Register,
     Faqs,
     Requirements,
-    Aifuture
+    Aifuture,
+    LoginModal,
   },
   data() {
     return {
@@ -181,9 +180,22 @@ export default {
       credits: 0,
       referralsCount: 0,
       referralLink: window.location.origin + "/?ref=ABC123",
+      showLogin: false
     };
   },
   methods: {
+    handleLogin(credentials) {
+      console.log("User logged in:", credentials);
+      // TODO: send credentials to backend
+    },
+    handleGoogleLogin() {
+      console.log("Google login clicked");
+      // TODO: trigger Google OAuth flow
+    },
+    handleForgotSent(email) {
+      console.log("Forgot password email sent to:", email);
+      // maybe show a toast
+    },
     loginWithGoogle() {
       this.user = { name: "John Doe", email: "john@example.com" };
     },

@@ -6,6 +6,7 @@ import Login from '../views/opened/auth/login.vue';
 import Registration from '../views/opened/auth/login.vue';
 import ForgotPassword from '../views/opened/auth/forgotPassword.vue';
 import Reset from '../views/opened/auth/reset.vue';
+import Betting from '../views/opened/landing/betting.vue';
 import AccessDenied from "../views/opened/auth/accessDenied.vue";
 
 // ✅ Closed routes (only necessary ones)
@@ -29,6 +30,12 @@ const routes = [
     path: "/register",
     name: "register",
     component: Registration,
+    meta: { requiresGuest: true }
+  },
+   {
+    path: "/betting",
+    name: "betting",
+    component: Betting,
     meta: { requiresGuest: true }
   },
   {

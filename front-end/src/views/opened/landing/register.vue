@@ -1,84 +1,254 @@
 <template>
   <!-- Modal Overlay -->
-  <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div
+    v-if="visible"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
     <!-- Modal Container -->
-    <div class="bg-white rounded-xl shadow-lg max-w-4xl w-full p-8 relative overflow-auto max-h-[90vh]">
+    <div
+      class="bg-white rounded-2xl shadow-xl max-w-3xl w-full p-6 relative overflow-auto max-h-[90vh]"
+    >
       <!-- Close Button -->
-      <button 
-        @click="$emit('close')" 
-        class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl font-bold"
+      <button
+        @click="$emit('close')"
+        class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold"
       >
         &times;
       </button>
 
-      <h3 class="text-2xl font-bold text-orange-600 mb-6">Register</h3>
+      <!-- Header -->
+      <h3 class="text-lg font-bold text-orange-600 mb-5 text-center uppercase tracking-wide">
+        Register
+      </h3>
 
-      <form class="space-y-4" @submit.prevent="submitForm" enctype="multipart/form-data">
-        <!-- Personal Info -->
-        <input type="text" placeholder="Full Name" v-model="form.name" class="w-full p-3 border rounded-lg" required />
-        <input type="number" placeholder="Age" v-model="form.age" class="w-full p-3 border rounded-lg" min="0" />
-        <input type="date" v-model="form.birth_date" class="w-full p-3 border rounded-lg" />
+      <!-- Registration Form -->
+      <form
+        class="space-y-3 text-sm"
+        @submit.prevent="submitForm"
+        enctype="multipart/form-data"
+      >
+        <!-- Full Name -->
+        <div>
+          <label class="block text-gray-600 mb-1">Full Name</label>
+          <input type="text" v-model="form.name" class="input-field" required />
+        </div>
 
-        <select v-model="form.gender" class="w-full p-3 border rounded-lg" required>
-          <option disabled value="">Select Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
+        <!-- Birth Date -->
+        <div>
+          <label class="block text-gray-600 mb-1">Birth Date</label>
+          <input type="date" v-model="form.birth_date" class="input-field" />
+        </div>
 
-        <input type="text" placeholder="Country" v-model="form.country" class="w-full p-3 border rounded-lg" required />
-        <input type="text" placeholder="City" v-model="form.city" class="w-full p-3 border rounded-lg" />
-        <input type="text" placeholder="Address" v-model="form.address" class="w-full p-3 border rounded-lg" />
-        <input type="email" placeholder="Email" v-model="form.email" class="w-full p-3 border rounded-lg" required />
-        <input type="text" placeholder="Phone Number" v-model="form.phone_number" class="w-full p-3 border rounded-lg" required />
+        <!-- Gender -->
+        <div>
+          <label class="block text-gray-600 mb-1">Gender</label>
+          <select v-model="form.gender" class="input-field" required>
+            <option disabled value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
 
-        <!-- Education -->
-        <select v-model="form.educational_level" class="w-full p-3 border rounded-lg" required>
-          <option disabled value="">Select Education Level</option>
-          <option v-for="level in educationLevels" :key="level" :value="level">{{ level }}</option>
-        </select>
+        <!-- Country with Code & Flag -->
+        <div class="relative w-full">
+          <label class="block text-gray-600 mb-1 text-sm font-medium">Country</label>
+          <div class="relative">
+            <button
+              type="button"
+              @click="dropdownOpen = !dropdownOpen"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 flex items-center justify-between text-sm focus:ring focus:ring-orange-200 focus:outline-none"
+            >
+              <span class="flex items-center space-x-2">
+                <img
+                  v-if="selectedCountry"
+                  :src="selectedCountry.flag"
+                  alt="flag"
+                  class="w-5 h-5 rounded-sm"
+                />
+                <span>{{ selectedCountry ? selectedCountry.name + ' (+' + selectedCountry.dial_code + ')' : 'Select Country' }}</span>
+              </span>
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-        <input type="text" placeholder="Institute Name" v-model="form.institute_name" class="w-full p-3 border rounded-lg" />
-        <input type="text" placeholder="Department" v-model="form.department" class="w-full p-3 border rounded-lg" />
-        <input type="text" placeholder="Field of Study" v-model="form.field_of_study" class="w-full p-3 border rounded-lg" />
-        <input type="number" placeholder="Graduation Year" v-model="form.graduation_year" class="w-full p-3 border rounded-lg" />
+            <!-- Dropdown Menu -->
+            <ul
+              v-show="dropdownOpen"
+              class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-64 overflow-auto shadow-lg"
+            >
+              <li
+                v-for="country in countries"
+                :key="country.code"
+                @click="selectCountry(country)"
+                class="flex items-center space-x-2 px-3 py-2 hover:bg-orange-100 cursor-pointer text-sm"
+              >
+                <img :src="country.flag" alt="flag" class="w-5 h-5 rounded-sm" />
+                <span>{{ country.name }} (+{{ country.dial_code }})</span>
+              </li>
+            </ul>
+          </div>
+        </div>
 
-        <!-- Work -->
-        <input type="text" placeholder="Occupation" v-model="form.occupation" class="w-full p-3 border rounded-lg" />
-        <input type="text" placeholder="Organization Name" v-model="form.org_name" class="w-full p-3 border rounded-lg" />
-        <input type="text" placeholder="Work Country" v-model="form.work_country" class="w-full p-3 border rounded-lg" />
-        <input type="text" placeholder="Work City" v-model="form.work_city" class="w-full p-3 border rounded-lg" />
-        <input type="text" placeholder="Work Department" v-model="form.work_department" class="w-full p-3 border rounded-lg" />
-        <textarea placeholder="Work Description" v-model="form.work_description" class="w-full p-3 border rounded-lg"></textarea>
+        <!-- City -->
+        <div>
+          <label class="block text-gray-600 mb-1">City</label>
+          <input type="text" v-model="form.city" class="input-field" />
+        </div>
 
-        <!-- Skills & Languages -->
-        <input type="text" placeholder="Skills (comma separated)" v-model="form.skills" class="w-full p-3 border rounded-lg" />
+        <!-- Address -->
+        <div>
+          <label class="block text-gray-600 mb-1">Address</label>
+          <input type="text" v-model="form.address" class="input-field" />
+        </div>
 
-        <select v-model="form.english_level" class="w-full p-3 border rounded-lg">
-          <option disabled value="">English Level</option>
-          <option v-for="level in englishLevels" :key="level" :value="level">{{ level }}</option>
-        </select>
+        <!-- Email -->
+        <div>
+          <label class="block text-gray-600 mb-1">Email</label>
+          <input type="email" v-model="form.email" class="input-field" required />
+        </div>
 
-        <input type="text" placeholder="Other Languages (comma separated)" v-model="form.other_languages" class="w-full p-3 border rounded-lg" />
+        <!-- Phone Number -->
+        <div>
+          <label class="block text-gray-600 mb-1">Phone Number</label>
+          <input type="text" v-model="form.phone_number" class="input-field" required />
+        </div>
 
-        <!-- Documents -->
-        <label class="block font-semibold mt-4 text-orange-600">Upload CV</label>
-        <input type="file" @change="handleFileUpload($event, 'cv')" class="w-full p-3 border rounded-lg" />
+        <!-- Status -->
+        <div>
+          <label class="block text-gray-600 mb-1">Status</label>
+          <select v-model="form.status" class="input-field" required>
+            <option disabled value="">Select Status</option>
+            <option value="learning">Student</option>
+            <option value="working">Working</option>
+          </select>
+        </div>
 
-        <label class="block font-semibold mt-4">Upload Certificates (multiple allowed)</label>
-        <input type="file" multiple @change="handleFileUpload($event, 'certificates')" class="w-full p-3 border rounded-lg" />
+        <!-- Education Section -->
+        <div v-if="form.status === 'learning'" class="space-y-3">
+          <div>
+            <label class="block text-gray-600 mb-1">Education Level</label>
+            <select v-model="form.educational_level" class="input-field" required>
+              <option disabled value="">Select Education Level</option>
+              <option v-for="level in educationLevels" :key="level" :value="level">
+                {{ level }}
+              </option>
+            </select>
+          </div>
 
-        <label class="block font-semibold mt-4 text-orange-600">
-          Please subscribe to our YouTube channel: 
-          <span class="text-blue-600 underline">https://youtube.com/your-channel</span>
-        </label>
-        <input type="file" @change="handleFileUpload($event, 'youtube_screenshot')" class="w-full p-3 border rounded-lg" required />
+          <div>
+            <label class="block text-gray-600 mb-1">Institute Name</label>
+            <input type="text" v-model="form.institute_name" class="input-field" />
+          </div>
 
-        <!-- Passwords -->
-        <input type="password" placeholder="Password" v-model="form.password" class="w-full p-3 border rounded-lg" required />
-        <input type="password" placeholder="Confirm Password" v-model="form.confirm_password" class="w-full p-3 border rounded-lg" required />
+          <div>
+            <label class="block text-gray-600 mb-1">Department</label>
+            <input type="text" v-model="form.department" class="input-field" />
+          </div>
 
-        <button type="submit" class="bg-orange-600 text-white px-6 py-3 rounded-lg shadow hover:bg-orange-700">
+          <div>
+            <label class="block text-gray-600 mb-1">Field of Study</label>
+            <input type="text" v-model="form.field_of_study" class="input-field" />
+          </div>
+        </div>
+
+        <!-- Work Section -->
+        <div v-if="form.status === 'working'" class="space-y-3">
+          <div>
+            <label class="block text-gray-600 mb-1">Occupation</label>
+            <input type="text" v-model="form.occupation" class="input-field" />
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Organization Name</label>
+            <input type="text" v-model="form.org_name" class="input-field" />
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Work Country</label>
+            <input type="text" v-model="form.work_country" class="input-field" />
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Work City</label>
+            <input type="text" v-model="form.work_city" class="input-field" />
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Work Department</label>
+            <input type="text" v-model="form.work_department" class="input-field" />
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Work Description</label>
+            <textarea v-model="form.work_description" class="input-field"></textarea>
+          </div>
+        </div>
+
+        <!-- English Level -->
+        <div>
+          <label class="block text-gray-600 mb-1">English Level</label>
+          <select v-model="form.english_level" class="input-field">
+            <option disabled value="">Select English Level</option>
+            <option v-for="level in englishLevels" :key="level" :value="level">
+              {{ level }}
+            </option>
+          </select>
+        </div>
+
+        <!-- CV Upload -->
+        <div>
+          <label class="block text-orange-600 text-xs font-medium mb-1">
+            Upload CV (PNG, JPG, JPEG, or PDF)
+          </label>
+          <input
+            type="file"
+            accept=".png,.jpg,.jpeg,.pdf"
+            @change="handleFileUpload($event, 'cv')"
+            class="input-field"
+            required
+          />
+        </div>
+
+        <!-- YouTube Screenshot -->
+        <div>
+          <label class="block text-orange-600 text-xs font-medium mb-1">
+            Please subscribe to our YouTube channel:
+            <a
+              href="https://www.youtube.com/channel/UCXRB5hcCZOD2tNcKF5yIiRQ"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-600 underline hover:text-blue-800"
+            >
+              Visit & Subscribe
+            </a>
+          </label>
+          <input
+            type="file"
+            accept=".png,.jpg,.jpeg,.gif,.webp"
+            @change="handleFileUpload($event, 'youtube_screenshot')"
+            class="input-field"
+            required
+          />
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-gray-600 mb-1">Password</label>
+          <input type="password" v-model="form.password" class="input-field" required />
+        </div>
+
+        <div>
+          <label class="block text-gray-600 mb-1">Confirm Password</label>
+          <input type="password" v-model="form.confirm_password" class="input-field" required />
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg w-full font-semibold text-sm mt-4 transition"
+        >
           Submit
         </button>
       </form>
@@ -86,89 +256,116 @@
   </div>
 </template>
 
-<script setup>
-import { reactive } from 'vue';
-import axios from 'axios';
+<script>
+import axios from "axios";
 
-const props = defineProps({
-  visible: { type: Boolean, default: false }
-});
+export default {
+  props: {
+    visible: Boolean,
+  },
+  data() {
+    return {
+      dropdownOpen: false,
+      selectedCountry: null,
+      form: {
+        name: "",
+        birth_date: "",
+        gender: "",
+        country: "",
+        city: "",
+        address: "",
+        email: "",
+        phone_number: "",
+        password: "",
+        confirm_password: "",
+        referral_code: "",
+        status: "",
+        educational_level: "",
+        institute_name: "",
+        department: "",
+        field_of_study: "",
+        occupation: "",
+        org_name: "",
+        work_country: "",
+        work_city: "",
+        work_department: "",
+        work_description: "",
+        english_level: "",
+        cv: null,
+        youtube_screenshot: null,
+      },
+      educationLevels: [
+        "junior secondary school",
+        "senior secondary school",
+        "preparatory school",
+        "high school",
+        "vocational diploma",
+        "diploma",
+        "undergraduate",
+        "bachelor",
+        "master",
+        "doctorate",
+        "professor",
+        "other",
+      ],
+      englishLevels: ["native", "professional", "intermediate", "beginner"],
+      countries: [
+        { name: "Ethiopia", dial_code: "251", code: "ET", flag: "https://flagcdn.com/w20/et.png" },
+        { name: "United States", dial_code: "1", code: "US", flag: "https://flagcdn.com/w20/us.png" },
+        { name: "United Kingdom", dial_code: "44", code: "GB", flag: "https://flagcdn.com/w20/gb.png" },
+        { name: "Canada", dial_code: "1", code: "CA", flag: "https://flagcdn.com/w20/ca.png" },
+        { name: "Germany", dial_code: "49", code: "DE", flag: "https://flagcdn.com/w20/de.png" },
+        { name: "France", dial_code: "33", code: "FR", flag: "https://flagcdn.com/w20/fr.png" },
+        { name: "India", dial_code: "91", code: "IN", flag: "https://flagcdn.com/w20/in.png" },
+        // Add more countries as needed
+      ],
+    };
+  },
+  methods: {
+    selectCountry(country) {
+      this.selectedCountry = country;
+      this.form.country = country.name;
+      this.dropdownOpen = false;
+    },
+    handleFileUpload(event, field) {
+      this.form[field] = event.target.files[0];
+    },
+    async submitForm() {
+      if (this.form.password !== this.form.confirm_password) {
+        alert("Passwords do not match!");
+        return;
+      }
 
-const emit = defineEmits(['close', 'success']);
+      const formData = new FormData();
+      for (const key in this.form) formData.append(key, this.form[key]);
 
-const form = reactive({
-  name: '',
-  age: null,
-  birth_date: '',
-  gender: '',
-  country: '',
-  city: '',
-  address: '',
-  email: '',
-  phone_number: '',
-  password: '',
-  confirm_password: '',
-  referral_code: '',
-  educational_level: '',
-  institute_name: '',
-  department: '',
-  field_of_study: '',
-  graduation_year: null,
-  occupation: '',
-  org_name: '',
-  work_country: '',
-  work_city: '',
-  work_department: '',
-  work_description: '',
-  skills: '',
-  english_level: '',
-  other_languages: '',
-  cv: null,
-  certificates: [],
-  youtube_screenshot: null,
-});
-
-const educationLevels = [
-  'junior secondary school','senior secondary school','preparatory school','high school',
-  'vocational diploma','diploma','undergraduate','bachelor','master','doctorate','professor','other'
-];
-
-const englishLevels = ['native','professional','intermediate','beginner'];
-
-function handleFileUpload(event, field) {
-  if (field === 'certificates') {
-    form.certificates = Array.from(event.target.files);
-  } else {
-    form[field] = event.target.files[0];
-  }
-}
-
-async function submitForm() {
-  if (form.password !== form.confirm_password) {
-    alert("Passwords do not match!");
-    return;
-  }
-
-  const formData = new FormData();
-  for (const key in form) {
-    if (form[key] instanceof Array) {
-      form[key].forEach(file => formData.append(key, file));
-    } else {
-      formData.append(key, form[key]);
-    }
-  }
-
-  try {
-    const response = await axios.post('/api/users', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    console.log('User registered:', response.data);
-    alert('Registration successful!');
-    emit('success', response.data);
-    emit('close');
-  } catch (err) {
-    console.error(err);
-    alert('Registration failed');
-  }
-}
+      try {
+        const response = await axios.post("/api/users", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        alert("Registration successful!");
+        this.$emit("success", response.data);
+        this.$emit("close");
+      } catch (err) {
+        console.error(err);
+        alert("Registration failed");
+      }
+    },
+  },
+};
 </script>
+
+<style scoped>
+.input-field {
+  @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring focus:ring-orange-200 focus:outline-none;
+}
+
+/* Optional scrollbar styling for country dropdown */
+ul::-webkit-scrollbar {
+  width: 6px;
+}
+ul::-webkit-scrollbar-thumb {
+  background-color: rgba(209, 115, 46, 0.5);
+  border-radius: 3px;
+}
+</style>
